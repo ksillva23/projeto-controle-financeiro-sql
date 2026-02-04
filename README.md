@@ -22,6 +22,17 @@ MySQL
 
 MySQL Workbench
 
+🧠 Conceitos Utilizados
+
+- CREATE DATABASE
+- CREATE TABLE
+- INSERT
+- SELECT
+- JOIN
+- GROUP BY
+- CASE WHEN
+- Funções de Data (MONTH)
+
 📚 Conceitos Utilizados
 
 CREATE TABLE
@@ -38,4 +49,5 @@ CASE WHEN
 
 📌 Observação
 
-Projeto desenvolvido com fins educacionais por estudante em início de carreira em Análise de Dados.
+Projeto desenvolvido com fins educacionais por estudante em início de carreira na área de Análise de Dados.
+
