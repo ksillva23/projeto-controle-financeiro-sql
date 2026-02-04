@@ -6,21 +6,16 @@ Projeto desenvolvido para praticar conceitos fundamentais de SQL aplicados à an
 
 Criar um banco de dados financeiro capaz de registrar receitas e despesas e gerar análises como:
 
-Total de receitas
-
-Total de despesas
-
-Gastos por categoria
-
-Totais mensais
-
-Saldo mensal
+- Total de receitas
+- Total de despesas
+- Gastos por categoria
+- Totais mensais
+- Saldo mensal
 
 🛠 Tecnologias
 
-MySQL
-
-MySQL Workbench
+- MySQL
+- MySQL Workbench
 
 🧠 Conceitos Utilizados
 
@@ -33,21 +28,6 @@ MySQL Workbench
 - CASE WHEN
 - Funções de Data (MONTH)
 
-📚 Conceitos Utilizados
-
-CREATE TABLE
-
-INSERT
-
-SELECT
-
-JOIN
-
-GROUP BY
-
-CASE WHEN
-
 📌 Observação
 
 Projeto desenvolvido com fins educacionais por estudante em início de carreira na área de Análise de Dados.
-
