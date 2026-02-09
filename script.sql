@@ -1,37 +1,61 @@
+-- =========================================
+-- CRIAÇÃO DO BANCO DE DADOS
+-- =========================================
+
+-- Cria o banco de dados para controle financeiro
 CREATE DATABASE controle_financeiro;
+
+-- Define o banco de dados ativo
 USE controle_financeiro;
 
+-- =========================================
+-- CRIAÇÃO DAS TABELAS
+-- =========================================
+
+-- Tabela responsável por armazenar as contas financeiras
+-- Ex: banco, carteira, cartão de crédito
 CREATE TABLE contas (
-id_conta INT PRIMARY KEY,
-nome_conta VARCHAR(100),
-tipo_conta VARCHAR(100)
+    id_conta INT PRIMARY KEY,
+    nome_conta VARCHAR(100),
+    tipo_conta VARCHAR(100)
 );
 
+-- Tabela de categorias das transações
+-- O campo "tipo" define se é Receita ou Despesa
 CREATE TABLE categorias (
-id_categoria INT PRIMARY KEY,
-nome_categoria VARCHAR(100),
-tipo VARCHAR(50)
+    id_categoria INT PRIMARY KEY,
+    nome_categoria VARCHAR(100),
+    tipo VARCHAR(50)
 );
 
+-- Tabela principal de transações financeiras
+-- Relaciona contas e categorias através de chaves estrangeiras
 CREATE TABLE transacoes (
-id_transacao INT PRIMARY KEY,
-data DATE,
-descricao VARCHAR(200),
-valor DECIMAL(10,2),
-id_categoria INT,
-id_conta INT,
-FOREIGN KEY (id_categoria) REFERENCES categorias(id_categoria),
-FOREIGN KEY (id_conta) REFERENCES contas(id_conta)
+    id_transacao INT PRIMARY KEY,
+    data DATE,
+    descricao VARCHAR(200),
+    valor DECIMAL(10,2),
+    id_categoria INT,
+    id_conta INT,
+    FOREIGN KEY (id_categoria) REFERENCES categorias(id_categoria),
+    FOREIGN KEY (id_conta) REFERENCES contas(id_conta)
 );
 
+-- =========================================
+-- INSERÇÃO DE DADOS
+-- =========================================
+
+-- Inserindo dados de contas
 INSERT INTO contas (id_conta, nome_conta, tipo_conta)
 VALUES
 (1, 'Banco Principal', 'Corrente'),
 (2, 'Carteira', 'Dinheiro'),
 (3, 'Cartão Crédito', 'Crédito');
 
+-- Verificação dos dados inseridos
 SELECT * FROM contas;
 
+-- Inserindo categorias de receitas e despesas
 INSERT INTO categorias (id_categoria, nome_categoria, tipo)
 VALUES
 (1, 'Salário', 'Receita'),
@@ -41,8 +65,10 @@ VALUES
 (5, 'Transporte', 'Despesa'),
 (6, 'Lazer', 'Despesa');
 
+-- Verificação das categorias
 SELECT * FROM categorias;
 
+-- Inserindo transações financeiras simuladas (Janeiro a Março)
 INSERT INTO transacoes (id_transacao, data, descricao, valor, id_categoria, id_conta)
 VALUES
 (1, '2025-01-05', 'Salário', 3000, 1, 1),
@@ -67,53 +93,67 @@ VALUES
 (20, '2025-03-18', 'Lanche', 50, 3, 2),
 (21, '2025-03-25', 'Cinema', 90, 6, 3);
 
+-- Visualização geral das transações
 SELECT * FROM transacoes;
 
-SELECT * FROM transacoes
+-- =========================================
+-- CONSULTAS DE ANÁLISE
+-- =========================================
+
+-- Filtrando transações de um período específico (Março)
+SELECT *
+FROM transacoes
 WHERE data BETWEEN '2025-03-01' AND '2025-03-31';
 
-SELECT * 
+-- Relacionando transações com categorias
+SELECT *
 FROM transacoes t
 JOIN categorias c
 ON t.id_categoria = c.id_categoria;
 
+-- Exibindo detalhes das transações com tipo (Receita/Despesa)
 SELECT
-t.data,
-t.descricao,
-t.valor,
-c.nome_categoria,
-c.tipo
+    t.data,
+    t.descricao,
+    t.valor,
+    c.nome_categoria,
+    c.tipo
 FROM transacoes t
 JOIN categorias c
 ON t.id_categoria = c.id_categoria;
 
+-- Total de receitas
 SELECT SUM(t.valor) AS total_receitas
 FROM transacoes t
 JOIN categorias c
 ON t.id_categoria = c.id_categoria
 WHERE c.tipo = 'Receita';
 
+-- Total de despesas
 SELECT SUM(t.valor) AS total_despesas
 FROM transacoes t
 JOIN categorias c
 ON t.id_categoria = c.id_categoria
 WHERE c.tipo = 'Despesa';
 
+-- Cálculo do saldo final (Receitas - Despesas)
 SELECT
-(SELECT SUM(t.valor) AS total_receitas
-FROM transacoes t
-JOIN categorias c
-ON t.id_categoria = c.id_categoria
-WHERE c.tipo = 'Receita') -
-(SELECT SUM(t.valor) AS total_despesas
-FROM transacoes t
-JOIN categorias c
-ON t.id_categoria = c.id_categoria
-WHERE c.tipo = 'Despesa')
+(SELECT SUM(t.valor)
+ FROM transacoes t
+ JOIN categorias c ON t.id_categoria = c.id_categoria
+ WHERE c.tipo = 'Receita')
+-
+(SELECT SUM(t.valor)
+ FROM transacoes t
+ JOIN categorias c ON t.id_categoria = c.id_categoria
+ WHERE c.tipo = 'Despesa')
 AS saldo_final;
 
-USE controle_financeiro;
+-- =========================================
+-- ANÁLISES AGRUPADAS
+-- =========================================
 
+-- Total de despesas por categoria
 SELECT c.nome_categoria, SUM(t.valor) AS total_despesas
 FROM transacoes t
 JOIN categorias c
@@ -121,6 +161,7 @@ ON t.id_categoria = c.id_categoria
 WHERE c.tipo = 'Despesa'
 GROUP BY c.nome_categoria;
 
+-- Total de receitas por categoria
 SELECT c.nome_categoria, SUM(t.valor) AS total_receitas
 FROM transacoes t
 JOIN categorias c
@@ -128,37 +169,28 @@ ON t.id_categoria = c.id_categoria
 WHERE c.tipo = 'Receita'
 GROUP BY c.nome_categoria;
 
+-- Total mensal de despesas
 SELECT MONTH(data) AS 'Mês', SUM(t.valor) AS total_despesas
 FROM transacoes t
 GROUP BY MONTH(data);
 
-SELECT MONTH(data) AS 'Mês', c.tipo, SUM(t.valor) AS total_despesas
+-- Total mensal separado por tipo (Receita / Despesa)
+SELECT
+    MONTH(data) AS 'Mês',
+    c.tipo,
+    SUM(t.valor) AS total
 FROM transacoes t
 JOIN categorias c
 ON t.id_categoria = c.id_categoria
 GROUP BY MONTH(data), c.tipo;
 
-SELECT MONTH(data) AS 'Mês',
-SUM(CASE WHEN c.tipo = 'Receita' THEN t.valor ELSE 0 END) AS total_receitas,
-SUM(CASE WHEN c.tipo = 'Despesa' THEN t.valor ELSE 0 END) AS total_despesas
-FROM transacoes t
-JOIN categorias c
-ON t.id_categoria = c.id_categoria
-GROUP BY MONTH(data);
-
-SELECT SUM(CASE WHEN c.tipo = 'Receita' THEN t.valor ELSE 0 END) 
--
-SUM(CASE WHEN c.tipo = 'Despesa' THEN t.valor ELSE 0 END) AS saldo
-FROM transacoes t
-JOIN categorias c
-ON t.id_categoria = c.id_categoria
-GROUP BY MONTH(data);
-
-SELECT MONTH(data) AS 'Mês', SUM(CASE WHEN c.tipo = 'Receita' THEN t.valor ELSE 0 END) AS total_receitas,
-SUM(CASE WHEN c.tipo = 'Despesa' THEN t.valor ELSE 0 END) AS total_despesas,
-SUM(CASE WHEN c.tipo = 'Receita' THEN t.valor ELSE 0 END) 
--
-SUM(CASE WHEN c.tipo = 'Despesa' THEN t.valor ELSE 0 END) AS saldo
+-- Receita, despesa e saldo mensal usando CASE
+SELECT
+    MONTH(data) AS 'Mês',
+    SUM(CASE WHEN c.tipo = 'Receita' THEN t.valor ELSE 0 END) AS total_receitas,
+    SUM(CASE WHEN c.tipo = 'Despesa' THEN t.valor ELSE 0 END) AS total_despesas,
+    SUM(CASE WHEN c.tipo = 'Receita' THEN t.valor ELSE 0 END) -
+    SUM(CASE WHEN c.tipo = 'Despesa' THEN t.valor ELSE 0 END) AS saldo
 FROM transacoes t
 JOIN categorias c
 ON t.id_categoria = c.id_categoria
